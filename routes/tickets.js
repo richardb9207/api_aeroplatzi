@@ -1,13 +1,14 @@
 const express = require('express');
-const { ticketsMock } = require('../utils/mocks/tickets');
+const TicketsServices = require('../services/tickets');
 
 function ticktsApi(app){
   const router = express.Router();
   app.use("/api/tickets",router);
-	
+	const ticketsServices = new TicketsServices();
 	router.get("/", async function(req,res,next){
+		const { tags } = req.query;
     try{
-			const tickets = await Promise.resolve(ticketsMock);
+			const tickets = await ticketsServices.getTickets({ tags });
 			res.status(200).json({
 				data: tickets,
 				message: 'tickets listed'
@@ -16,22 +17,22 @@ function ticktsApi(app){
 					next(err);
         }
 		});
-	
 	router.get("/:id_ticket", async function(req,res,next){
+		const{ id_ticket } = req.params;
 			try{
-				const tickets = await Promise.resolve(ticketsMock[0]);
+				const ticket = await ticketsServices.getTicket({ id_ticket });
 				res.status(200).json({
-					data: tickets,
+					data: ticket,
 					message: 'tickets retrive'
 				})
 			}catch(err){
 						next(err);
 					}
 			});
-	
-	router.post("/", async function(req,res,next){
+	router.post("/", async function(req, res, next){
+		const { body: ticket } = req;
     try{
-			const createTicketId = await Promise.resolve(ticketsMock[1].id_ticket);
+			const createTicketId = await ticketsServices.createdTicket({ ticket });
 			res.status(201).json({
 				data: createTicketId,
 				message: 'tickets create'
@@ -40,10 +41,11 @@ function ticktsApi(app){
 					next(err);
         }
 		});
-	
 	router.put("/:id_ticket", async function(req,res,next){
+		const{ id_ticket } = req.params;
+		const { body: ticket } = req;
 			try{
-				const updateTicketId = await Promise.resolve(ticketsMock[0].id_ticket);
+				const updateTicketId = await ticketsServices.updatedTicket({ id_ticket,ticket });
 				res.status(200).json({
 					data: updateTicketId,
 					message: 'ticket update'
@@ -52,10 +54,10 @@ function ticktsApi(app){
 						next(err);
 					}
 			});
-	
 			router.delete("/:id_ticket", async function(req,res,next){
+			const{ id_ticket } = req.params;
 				try{
-					const deleteTicketId = await Promise.resolve(ticketsMock[0].id_ticket);
+					const deleteTicketId = await ticketsServices.deletedTicket({ id_ticket });
 					res.status(200).json({
 						data: deleteTicketId,
 						message: 'tickets deleted'
