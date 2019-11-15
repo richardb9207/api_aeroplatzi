@@ -33,7 +33,7 @@ function ticktsApi(app){
 		const { body: ticket } = req;
     try{
 			const createTicketId = await ticketsServices.createdTicket({ ticket });
-			res.status(201).json({
+			res.status(201).json({	
 				data: createTicketId,
 				message: 'tickets create'
 			})

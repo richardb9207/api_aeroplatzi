@@ -1,25 +1,30 @@
-const { ticketsMock } = require('../utils/mocks/tickets');
+const MongoLib = require('../lib/mongo');
 
 class ticketsServices{
-    async getTickets(){
-        const tickets = await Promise.resolve(ticketsMock);
+    constructor(){
+        this.collection = 'tickets';
+        this.mongoDB = new MongoLib();
+    }
+    async getTickets({ tags }){
+        const query = tags && { tags: { $in: tags } };
+        const tickets = await this.mongoDB.getAll(this.collection, query);
         return tickets || [];
     }
-    async getTicket(){
-        const ticket = await Promise.resolve(ticketsMock[0]);
+    async getTicket({ id_ticket }){
+        const ticket = await this.mongoDB.get(this.collection, id_ticket);
         return ticket || {};
     }
-    async createdTicket(){
-        const createdTicketID = await Promise.resolve(ticketsMock[0].id_ticket);
+    async createdTicket({ ticket }){
+        const createdTicketID = this.mongoDB.create(this.collection, ticket);
         return createdTicketID || {};
     }
-    async updatedTicket(){
-        const updatedTicketID = await Promise.resolve(ticketsMock[0].id_ticket);
-        return updatedTicketID || {};
+    async updatedTicket({ id_ticket, ticket } = {}){
+        const updatedTicketID = await this.mongoDB.update(this.collection, id_ticket, ticket);
+        return updatedTicketID;
     }
-    async deletedTicket(){
-        const deletedTicketID = await Promise.resolve(ticketsMock[0].id_ticket);
-        return deletedTicketID || {};
+    async deletedTicket({ id_ticket }){
+        const deletedTicketID = await this.mongoDB.delete(this.collection, id_ticket)
+        return deletedTicketID;
     }
 }
 
